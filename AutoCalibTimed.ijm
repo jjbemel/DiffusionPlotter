@@ -1,5 +1,3 @@
-#!/bin/java
-
 open(File.openDialog("Pick Calibration Photo"));
 while (selectionType() < 0) {
 	setTool("line");
