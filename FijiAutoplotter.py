@@ -56,13 +56,16 @@ def runTimed():
                 smallest = min(yTimed)
             yTimed = [float(smallest)-float(each) for each in yTimed]
             yTimed = [(((each + 1e-20) / float(abs(min(yTimed)))) + 1) for each in yTimed]
-            # if concCheck == 1:
-            #     yTimed = yTimed * concentration
+            if VarConc.get() == 1:
+                yTimed = [each * float(concentration.get()) for each in yTimed]
             # print(yTimed) # DEBUG TO READ GRAY VALUES
             a.plot(xTimed,yTimed,linewidth=1)
             indexnum += 1
     a.set_xlabel('Distance (mm)')
-    a.set_ylabel('Intensity')
+    if VarConc.get() == 1:
+        a.set_ylabel('Concentration (mol/m^3')
+    else:
+        a.set_ylabel('Intensity')
     canvas = FigureCanvasTkAgg(fig, master=topRFrame)
     canvas.draw()
     canvas.get_tk_widget().grid(row=0)
@@ -76,20 +79,20 @@ def runSlice():
 
 def runfunc():
     if VarTimed.get() == 1:
-        runFijiTimed()
+        if VarFijiT.get() ==1:
+            runFijiTimed()
         runTimed()
     if VarSlice.get() == 1:
-        runFijiSlice()
+        if VarFijiS.get() ==1:
+            runFijiSlice()
         runSlice()
-
-
 
 
 
 ########## TKINTER GUI BUILDER ##########
 
 root = Tk()
-root.title("Fiji Auto Plotter | CHE 482 Team Brain")
+root.title("Diffusion Photos Auto Plotter v0.8 | CHE 482 Team Brain")
 #root.state('zoomed')
 
 ### Top Frame ###
@@ -98,22 +101,29 @@ topFrame.grid(row=0,column=0,padx=5,sticky=W)
 
 # Top Frame
 # Required
-top1Frame = LabelFrame(topFrame, text="Required",bd=3)
-top1Frame.grid(row=0,column=0,padx=5,ipady=30)
-concLabel = Label(top1Frame, text="Concentration (mol/m^3):").grid(row=0,column=0)
+top1Frame = LabelFrame(topFrame, text="Required",bd=3, font='Helvetica 12 bold')
+top1Frame.grid(row=0,column=0,padx=5,ipady=30,stick=E+W)
+VarTimed = IntVar()
+NeedTimed = Checkbutton(top1Frame, text="Plot Timed Photos?",variable=VarTimed).grid(row=0,column=0,stick=W)
+VarSlice = IntVar()
+NeedSlice = Checkbutton(top1Frame, text="Plot Sliced Photos?",variable=VarSlice).grid(row=1,column=0,stick=W)
+VarConc = IntVar()
+NeedConc = Checkbutton(top1Frame, text="Use concentration instead of intensity",variable=VarConc).grid(row=2,column=0)
+concLabel = Label(top1Frame, text="Concentration (mol/m^3):").grid(row=3,column=0)
 concentration = Entry(top1Frame, width=10)
-concentration.grid(row=1,column=1,sticky=W)
+concentration.grid(row=3,column=1)
 concentration.insert(0,"1.25")
+
 
 # Top Frame
 # Timed Photos
-top3Frame = LabelFrame(topFrame, text="Timed Photos",bd=3)
-top3Frame.grid(row=1,column=0,padx=5,ipady=50)
-VarTimed = IntVar()
-NeedTimed = Checkbutton(top3Frame, text="Plot Timed Photos?",variable=VarTimed).grid()
-dirButton3 = Button(top3Frame, text="Select Timed Folder", command=TimedDir).grid(row=1,column=0)
+top3Frame = LabelFrame(topFrame, text="Timed Photos",bd=3, font='Helvetica 12 bold')
+top3Frame.grid(row=1,column=0,padx=5,ipady=50,sticky=E+W)
+dirButton3 = Button(top3Frame, text="Select Timed Photos Folder", command=TimedDir).grid(row=0,column=0,sticky=W)
 VarDir3 = StringVar()
-dir3 = Label(top3Frame, textvariable=VarDir3).grid(row=1,column=1)
+dir3 = Label(top3Frame, textvariable=VarDir3).grid(row=0,column=1)
+VarFijiT = IntVar()
+NeedFijiT = Checkbutton(top3Frame, text="Run Timed Photos Fiji Calibration?",variable=VarFijiT).grid(row=1,column=0,stick=W)
 timeLabel = Label(top3Frame, text="Total Experiment Time (hrs):").grid(row=2,column=0)
 totTime = Entry(top3Frame, width=10)
 totTime.grid(row=2,column=1,sticky=W)
@@ -121,13 +131,13 @@ totTime.insert(0,"6")
 
 # Top Frame
 # Slices
-top4Frame = LabelFrame(topFrame, text="Slice Photos",bd=3)
-top4Frame.grid(row=2,column=0,padx=5,ipady=50)
-VarSlice = IntVar()
-NeedSlice = Checkbutton(top4Frame, text="Plot Sliced Photos?",variable=VarSlice).grid()
-dirButton4 = Button(top4Frame, text="Select Slice Folder", command=SliceDir).grid(row=1,column=0)
+top4Frame = LabelFrame(topFrame, text="Slice Photos",bd=3, font='Helvetica 12 bold')
+top4Frame.grid(row=2,column=0,padx=5,ipady=50,sticky=E+W)
+dirButton4 = Button(top4Frame, text="Select Slice Photos Folder", command=SliceDir).grid(row=0,column=0,sticky=W)
 VarDir4 = StringVar()
-dir4 = Label(top4Frame, textvariable=VarDir4).grid(row=1,column=1)
+dir4 = Label(top4Frame, textvariable=VarDir4).grid(row=1,column=0)
+VarFijiS = IntVar()
+NeedFijiS = Checkbutton(top4Frame, text="Run Slice Photos Fiji Calibration?",variable=VarFijiS).grid(row=1,column=0,stick=W)
 emptyLabel1 = Label(top4Frame,text=" ").grid(row=2,column=0)
 cutsLabel = Label(top4Frame, text= "Select the number of slices:").grid(row=3,column=0)
 r = IntVar()
@@ -136,10 +146,9 @@ Radiobutton(top4Frame, text="5 Cuts (6 photos)",variable=r,value=2).grid(row=5,c
 
 # Top Right Frame
 # Plots?
-topRFrame = LabelFrame(topFrame, text="Plots",bd=3)
+topRFrame = LabelFrame(topFrame, text="Plot",bd=3, font='Helvetica 12 bold')
 topRFrame.grid(row=0,column=1,rowspan=3)
 canvas = Canvas(topRFrame).grid()
-
 
 ### Bottom Frame ###
 botFrame = LabelFrame(root,text="",bd=3)
@@ -147,7 +156,7 @@ botFrame.grid(row=1,column=0,padx=5,ipady=20)
 
 # Bottom Left Frame
 # Console, Run, Close
-botLFrame = LabelFrame(botFrame, text="Functions",bd=3)
+botLFrame = LabelFrame(botFrame, text="Functions",bd=3, font='Helvetica 10 bold')
 botLFrame.grid(row=0,column=0,padx=5,ipady=10)
 ConsoleButton = Label(botLFrame, text="Console").grid(row=0,column=0,padx=150)
 emptyLabel2 = Label(botLFrame,text=" ").grid(row=1,column=0)
@@ -157,11 +166,12 @@ CloseButton = Button(botLFrame, text="Close",command=root.quit).grid(row=4,colum
 
 # Bot Right Frame
 # Credits
-botRFrame = LabelFrame(botFrame, text="Credits",bd=3)
+botRFrame = LabelFrame(botFrame, text="Credits",bd=3, font='Helvetica 10 bold')
 botRFrame.grid(row=0,column=1,padx=5,ipady=20)
-testLabelbr1 = Label(botRFrame, text="CHE 482 Team Brain").grid()
-testLabelbr2 = Label(botRFrame, text="Python 3.10.2 | Java 1.9.0_172 (64-bit) | ImageJ 1.53o").grid()
-testLabelbr3 = Label(botRFrame, text="Python Libraries:").grid()
-testLabelbr4 = Label(botRFrame, text="OpenCV, Matplotlib, Tkinter, Numpy, Pandas").grid()
+testLabelbr1 = Label(botRFrame, text="CHE 482 Team Brain  |  Last Updated: 03/06/2022").grid()
+testLabelbr2 = Label(botRFrame, text="").grid()
+testLabelbr3 = Label(botRFrame, text="Python 3.10.2 | Java 1.9.0_172 (64-bit) | ImageJ 1.53o").grid()
+testLabelbr4 = Label(botRFrame, text="Python Libraries:").grid()
+testLabelbr5 = Label(botRFrame, text="OpenCV, Matplotlib, Tkinter, Numpy, Pandas").grid()
 
 root.mainloop()
