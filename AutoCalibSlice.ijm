@@ -4,5 +4,7 @@ while (selectionType() < 0) {
 	waitForUser("Draw a 5mm calibration line, and press OK when done.");
 }
 getValue("Length");
-saveAs("Text","C:/Users/jjbem/PycharmProjects/DesignProj/pixlenSlice.txt");
+DIR = getDirectory("startup");
+Output = DIR + "pixlenSlice.txt";
+saveAs("Text",Output);
 run("Quit");
