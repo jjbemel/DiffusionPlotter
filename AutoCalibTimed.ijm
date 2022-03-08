@@ -4,5 +4,7 @@ while (selectionType() < 0) {
 	waitForUser("Draw a 5mm calibration line, and press OK when done.");
 }
 getValue("Length");
-saveAs("Text","C:/Users/jjbem/PycharmProjects/DesignProj/pixlenTimed.txt");
+DIR = getDirectory("startup");
+Output = DIR + "pixlenTimed.txt";
+saveAs("Text",Output);
 run("Quit");
