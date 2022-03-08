@@ -46,7 +46,7 @@ def runTimed():
             minimum = min(img.flatten())
             i, j = np.where(img == minimum)
             row = i[0]
-            with open('pixlenTimed.txt') as f:
+            with open('Fiji.app/pixlenTimed.txt') as f:
                 length = f.readline()
                 length = length.rstrip('\n')
                 length = float(length) / 5
@@ -75,6 +75,10 @@ def runTimed():
 
 def runSlice():
     # NOT COMPLETED YET
+    #with open('/Fiji.app/pixlenSlice.txt') as f:
+        #length = f.readline()
+        #length = length.rstrip('\n')
+        #length = float(length) / 5
     return
 
 def runfunc():
@@ -143,6 +147,7 @@ cutsLabel = Label(top4Frame, text= "Select the number of slices:").grid(row=3,co
 r = IntVar()
 Radiobutton(top4Frame, text="3 Cuts (4 photos)",variable=r,value=1).grid(row=4,column=0)
 Radiobutton(top4Frame, text="5 Cuts (6 photos)",variable=r,value=2).grid(row=5,column=0)
+ConstructionLabel = Label(top4Frame, text="Section Not Implemented", font='Helvetica 12 bold').grid(row=6,column=0)
 
 # Top Right Frame
 # Plots?
