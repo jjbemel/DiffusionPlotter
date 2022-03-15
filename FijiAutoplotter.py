@@ -1,5 +1,6 @@
 #!/bin/python3
 
+#Package imports
 import os
 import cv2
 import matplotlib.pyplot
@@ -11,11 +12,7 @@ import tkinter.filedialog as fd
 from tkinter import *
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
-
-PicExtension = [".bmp", ".jpg", ".jpeg", ".jp2", ".png", ".webp",
-                ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm",
-                ".tiff", ".tif", ".exr"]
-
+# functions for tkinter button actions
 
 def TimedDir():
     VarDir3.set(fd.askdirectory(title="Please Select Timed Photos Folder"))
@@ -23,17 +20,17 @@ def TimedDir():
 def SliceDir():
     VarDir4.set(fd.askdirectory(title="Please Select Slice Photos Folder"))
 
-def runFijiTimed():
+def runFijiTimed(): #get program working directory & launch Fiji w/ Timed photo calibration
     cwd = os.getcwd()
     Fiji = cwd+'/Fiji.app/ImageJ-win64.exe -macro AutoCalibTimed'
     sub.run(Fiji)
 
-def runFijiSlice():
+def runFijiSlice(): #get program working directory & launch Fiji w/ Slice photo calibration
     cwd = os.getcwd()
     Fiji = cwd+'/Fiji.app/ImageJ-win64.exe -macro AutoCalibSlice'
     sub.run(Fiji)
 
-def runTimed():
+def runTimed(): #run timed photo function for plotting intensity over distance at 4 time intervals
     fig = plt.figure()
     a = fig.add_subplot(111)
     indexnum = 0
@@ -81,7 +78,7 @@ def runSlice():
         #length = float(length) / 5
     return
 
-def runfunc():
+def runfunc(): #run button, condition based command execution
     if VarTimed.get() == 1:
         if VarFijiT.get() ==1:
             runFijiTimed()
@@ -91,12 +88,17 @@ def runfunc():
             runFijiSlice()
         runSlice()
 
+# Variables
+# only accept picture file types
+PicExtension = [".bmp", ".jpg", ".jpeg", ".jp2", ".png", ".webp",
+                ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm",
+                ".tiff", ".tif", ".exr"]
 
 
 ########## TKINTER GUI BUILDER ##########
 
 root = Tk()
-root.title("Diffusion Photos Auto Plotter v0.8 | CHE 482 Team Brain")
+root.title("Diffusion Photos Auto Plotter v0.8 | CHE 482 Team Brain") #title of window
 #root.state('zoomed')
 
 ### Top Frame ###
@@ -150,7 +152,7 @@ Radiobutton(top4Frame, text="5 Cuts (6 photos)",variable=r,value=2).grid(row=5,c
 ConstructionLabel = Label(top4Frame, text="Section Not Implemented", font='Helvetica 12 bold').grid(row=6,column=0)
 
 # Top Right Frame
-# Plots?
+# Plots
 topRFrame = LabelFrame(topFrame, text="Plot",bd=3, font='Helvetica 12 bold')
 topRFrame.grid(row=0,column=1,rowspan=3)
 canvas = Canvas(topRFrame).grid()
