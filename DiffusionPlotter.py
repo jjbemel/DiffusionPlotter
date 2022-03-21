@@ -1,6 +1,6 @@
 #!/bin/python3
 
-# DiffusionPlotter v0.8.5
+# DiffusionPlotter v0.8.6
 # Last update 03/21/22
 
 # Import Packages
@@ -54,11 +54,13 @@ def runTimed():
         if extension in PicExtension:
             # if the file type is a picture, open the photo
             img = cv2.imread(fullpath,0)
-            minimum = min(img.flatten())
-            i, j = np.where(img == minimum)
+            if indexnum == 0:
+                minimum = min(img.flatten())
+                i, j = np.where(img == minimum)
+                row = i[0]
             # flatten the multi-array of pixels into a single array
-            row = i[0]
             # row of interest is rows over where the minimum pixel color is located
+            # the line is determined by the most saturated photo and translated to the others
             with open('Fiji.app/pixlenTimed.txt') as f:
                 # using the Time Calibration output; determine pixels/millimeter
                 length = f.readline()
