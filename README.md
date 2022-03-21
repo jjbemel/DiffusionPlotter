@@ -5,8 +5,9 @@ Reads a timed sequence of photos to plot color concentration over distance to ma
 
 ### Requires: 
 - Fiji in working directory
-- Photos listed alphabetically in folder, in chronological order (i.e. photo1, photo2; A, B, C; etc.)
 - In /Fiji/macros/ place the AutoCalibSlice.ijm and AutoCalibTimed.ijm files
+- Mapped photos are in a seperate folder
+- Photos listed alphabetically in folder, in chronological order (i.e. photo1, photo2; A, B, C; etc.)
 
 ### Checklist
 - [x] Fiji Auto Calibrate
