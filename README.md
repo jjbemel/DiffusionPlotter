@@ -4,7 +4,7 @@ Latest release: 03/21/22
 Reads a timed sequence of photos to plot color concentration over distance to map diffusion
 
 ### Prepackaged
-A prepackaged distribution file is available with Fiji and macros included.
+A prepackaged distribution file is available with Python3, imports, Fiji, and macros all included.
 
 https://drive.google.com/file/d/1gZplh6--yVFVtfwImEBzn34hL514XvHI/view?usp=sharing
 
