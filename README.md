@@ -2,9 +2,9 @@
 Reads photos being injected with blue dye over time to plot the distance of diffusion
 
 ### Requires: 
-- Fiji in working directory 
-- Photos listed in folder in chronological order (i.e. photo1, photo2; A, B, C; etc.)
-- In Fiji/macros/ place the AutoCalibSlice.ijm and AutoCalibTimed.ijm
+- Fiji in working directory
+- Photos listed alphabetically in folder, in chronological order (i.e. photo1, photo2; A, B, C; etc.)
+- In /Fiji/macros/ place the AutoCalibSlice.ijm and AutoCalibTimed.ijm files
 
 ### Checklist
 - [x] Fiji Auto Calibrate
@@ -17,3 +17,6 @@ Reads photos being injected with blue dye over time to plot the distance of diff
 - [ ] Diffusivity Calculation
 - [ ] Subtract Noise Floor
 - [ ] Show Photo with OpenCV Line Selection drawn
+
+### Prepackaged
+A prepackaged distribution file is available upon request with Fiji and macros included. 
