@@ -9,7 +9,7 @@ A prepackaged distribution file is available with Python3, imports, Fiji, and ma
 https://drive.google.com/file/d/1gZplh6--yVFVtfwImEBzn34hL514XvHI/view?usp=sharing
 
 ### Requires: 
-- Fiji in working directory
+- Fiji folder in DiffusionPlotter.py file's directory
 - In /Fiji/macros/ place the AutoCalibSlice.ijm and AutoCalibTimed.ijm files
 - Mapped photos are in a seperate folder
 - Photos listed alphabetically in folder, in chronological order (i.e. photo1, photo2; A, B, C; etc.)
