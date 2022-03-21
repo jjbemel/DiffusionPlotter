@@ -1,4 +1,4 @@
-# DiffusionPlotter v0.8.0
+# DiffusionPlotter v0.8.5
 Reads photos being injected with blue dye over time to plot the distance of diffusion
 
 ### Requires: 
