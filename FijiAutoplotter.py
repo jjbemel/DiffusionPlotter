@@ -1,6 +1,9 @@
 #!/bin/python3
 
-#Package imports
+# DiffusionPlotter v0.8.5
+# Last update 03/21/22
+
+# Import Packages
 import os
 import cv2
 import matplotlib.pyplot
@@ -11,74 +14,104 @@ import matplotlib.pyplot as plt
 import tkinter.filedialog as fd
 from tkinter import *
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from scipy.ndimage import uniform_filter1d
 
-# functions for tkinter button actions
+# Only allow picture extension types included here
+PicExtension = [".bmp", ".jpg", ".jpeg", ".jp2", ".png", ".webp",
+                ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm",
+                ".tiff", ".tif", ".exr"]
 
+# Select timed photos folder button
 def TimedDir():
     VarDir3.set(fd.askdirectory(title="Please Select Timed Photos Folder"))
 
+# Select slice photos folder button
 def SliceDir():
     VarDir4.set(fd.askdirectory(title="Please Select Slice Photos Folder"))
 
-def runFijiTimed(): #get program working directory & launch Fiji w/ Timed photo calibration
+# Timed photos, run calibration through Fiji
+def runFijiTimed():
     cwd = os.getcwd()
     Fiji = cwd+'/Fiji.app/ImageJ-win64.exe -macro AutoCalibTimed'
     sub.run(Fiji)
 
-def runFijiSlice(): #get program working directory & launch Fiji w/ Slice photo calibration
+# Slice photos, run calibration through Fiji
+def runFijiSlice():
     cwd = os.getcwd()
     Fiji = cwd+'/Fiji.app/ImageJ-win64.exe -macro AutoCalibSlice'
     sub.run(Fiji)
 
-def runTimed(): #run timed photo function for plotting intensity over distance at 4 time intervals
+# Timed photos, run pixel scan and graph
+def runTimed():
+    # create a figure container and add plot
     fig = plt.figure()
     a = fig.add_subplot(111)
     indexnum = 0
     for name in reversed(os.listdir(VarDir3.get())):
+        # for each item in the selected folder, in reverse alphabetical order
         filename, extension = os.path.splitext(name)
         fullpath = VarDir3.get()+"/"+filename+extension
         if extension in PicExtension:
-            # print(fullpath) # DEBUG FOR FILE READ ORDERING
+            # if the file type is a picture, open the photo
             img = cv2.imread(fullpath,0)
             minimum = min(img.flatten())
             i, j = np.where(img == minimum)
+            # flatten the multi-array of pixels into a single array
             row = i[0]
+            # row of interest is rows over where the minimum pixel color is located
             with open('Fiji.app/pixlenTimed.txt') as f:
+                # using the Time Calibration output; determine pixels/millimeter
                 length = f.readline()
                 length = length.rstrip('\n')
                 length = float(length) / 5
+                # measurement taken over 5mm; therefore divide by 5
             xTimed= np.arange(img.shape[1])/length
+            # X axis of graph is mm of distance; pixels divided by pix/mm
             yTimed = img[row][:]
-            if indexnum == 0:
+            # Y axis of graph is the line at darkest column (# of rows over), read top to bottom
+            if VarMovingAve.get() == 1:
+                yTimed = uniform_filter1d(yTimed, size=50)
+                # if moving average is selected, add filter
+            if VarNormT.get() == 1:
                 smallest = min(yTimed)
+                # If normalizing all to one is selected, each line is normalized
+            elif indexnum == 0:
+                smallest = min(yTimed)
+                # ELSE, only normalize the first line; based on darkest pixel in last photo
             yTimed = [float(smallest)-float(each) for each in yTimed]
             yTimed = [(((each + 1e-20) / float(abs(min(yTimed)))) + 1) for each in yTimed]
+            # Inverting values and scaling values from 0-255 (dark to light) to 0-1 (light to dark)
             if VarConc.get() == 1:
                 yTimed = [each * float(concentration.get()) for each in yTimed]
-            # print(yTimed) # DEBUG TO READ GRAY VALUES
+                # if user selects concentration values checkbox; scale to 0-[userinput]
             a.plot(xTimed,yTimed,linewidth=1)
             indexnum += 1
-    a.set_xlabel('Distance (mm)')
+            # Plot line, move on to next photo in folder and repeat
+    a.set_xlabel('Distance (mm)')  # X Axis label
     if VarConc.get() == 1:
-        a.set_ylabel('Concentration (mol/m^3')
+        a.set_ylabel('Concentration (mol/m^3')  # Y Axis Label (if concentration selected)
     else:
-        a.set_ylabel('Intensity')
+        a.set_ylabel('Intensity')  # Y Axis Label normally
+    a.legend(['t=360','t=240','t=120','t=0'])  # *FIX ME BASED ON USER EXPERIMENT TIME INPUT*
     canvas = FigureCanvasTkAgg(fig, master=topRFrame)
     canvas.draw()
     canvas.get_tk_widget().grid(row=0)
+    # draw plot on GUI
     toolbarFrame = Frame(master=botLFrame)
     toolbarFrame.grid(row=0, column=0)
     toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)
+    # Draw plot toolbar on GUI
 
 def runSlice():
-    # NOT COMPLETED YET
+    # *NOT COMPLETED YET*
     #with open('/Fiji.app/pixlenSlice.txt') as f:
         #length = f.readline()
         #length = length.rstrip('\n')
         #length = float(length) / 5
     return
 
-def runfunc(): #run button, condition based command execution
+def runfunc():
+    # Based on user selection, runs correct sequence of functions
     if VarTimed.get() == 1:
         if VarFijiT.get() ==1:
             runFijiTimed()
@@ -88,25 +121,18 @@ def runfunc(): #run button, condition based command execution
             runFijiSlice()
         runSlice()
 
-# Variables
-# only accept picture file types
-PicExtension = [".bmp", ".jpg", ".jpeg", ".jp2", ".png", ".webp",
-                ".pbm", ".pgm", ".ppm", ".pxm", ".pnm", ".pfm",
-                ".tiff", ".tif", ".exr"]
-
-
 ########## TKINTER GUI BUILDER ##########
 
 root = Tk()
-root.title("Diffusion Photos Auto Plotter v0.8 | CHE 482 Team Brain") #title of window
-#root.state('zoomed')
+root.title("Diffusion Photos Auto Plotter v0.8 | CHE 482 Team Brain")
+#root.state('zoomed')  # if fullscreen wanted
 
 ### Top Frame ###
 topFrame = LabelFrame(root,bd=3)
 topFrame.grid(row=0,column=0,padx=5,sticky=W)
 
 # Top Frame
-# Required
+# Required Items
 top1Frame = LabelFrame(topFrame, text="Required",bd=3, font='Helvetica 12 bold')
 top1Frame.grid(row=0,column=0,padx=5,ipady=30,stick=E+W)
 VarTimed = IntVar()
@@ -119,7 +145,6 @@ concLabel = Label(top1Frame, text="Concentration (mol/m^3):").grid(row=3,column=
 concentration = Entry(top1Frame, width=10)
 concentration.grid(row=3,column=1)
 concentration.insert(0,"1.25")
-
 
 # Top Frame
 # Timed Photos
@@ -134,6 +159,10 @@ timeLabel = Label(top3Frame, text="Total Experiment Time (hrs):").grid(row=2,col
 totTime = Entry(top3Frame, width=10)
 totTime.grid(row=2,column=1,sticky=W)
 totTime.insert(0,"6")
+VarNormT = IntVar()
+NeedNormT = Checkbutton(top3Frame, text="Normalize All Lines to 1",variable=VarNormT).grid(row=3,column=0,stick=W)
+VarMovingAve = IntVar()
+NeedMovingAve = Checkbutton(top3Frame, text="Take Moving Average",variable=VarMovingAve).grid(row=4,column=0,stick=W)
 
 # Top Frame
 # Slices
@@ -175,7 +204,7 @@ CloseButton = Button(botLFrame, text="Close",command=root.quit).grid(row=4,colum
 # Credits
 botRFrame = LabelFrame(botFrame, text="Credits",bd=3, font='Helvetica 10 bold')
 botRFrame.grid(row=0,column=1,padx=5,ipady=20)
-testLabelbr1 = Label(botRFrame, text="CHE 482 Team Brain  |  Last Updated: 03/06/2022").grid()
+testLabelbr1 = Label(botRFrame, text="CHE 482 Team Brain  |  Last Updated: 03/08/2022").grid()
 testLabelbr2 = Label(botRFrame, text="").grid()
 testLabelbr3 = Label(botRFrame, text="Python 3.10.2 | Java 1.9.0_172 (64-bit) | ImageJ 1.53o").grid()
 testLabelbr4 = Label(botRFrame, text="Python Libraries:").grid()
