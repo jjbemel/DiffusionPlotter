@@ -11,6 +11,9 @@ Reads photos being injected with blue dye over time to plot the distance of diff
 - [x] Tkinter GUI
 - [x] Timed Photo Reader
 - [ ] Slice Photo Reader
-- [ ] Commented Code
+- [x] Commented Code
 - [ ] Distance mapper (Timed Photos)
-- [ ] Prepackage executable
+- [x] Prepackage executable
+- [ ] Diffusivity Calculation
+- [ ] Subtract Noise Floor
+- [ ] Show Photo with OpenCV Line Selection drawn
