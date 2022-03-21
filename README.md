@@ -26,4 +26,4 @@ https://drive.google.com/file/d/1gZplh6--yVFVtfwImEBzn34hL514XvHI/view?usp=shari
 - [ ] Diffusivity Calculation
 - [ ] Subtract Noise Floor
 - [ ] Show Photo with OpenCV Line Selection drawn
-
+- [ ] Cut down prepackage size (import specific modules rather than total)
