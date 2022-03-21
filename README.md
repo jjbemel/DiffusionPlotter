@@ -3,6 +3,11 @@ Latest release: 03/21/22
 
 Reads a timed sequence of photos to plot color concentration over distance to map diffusion
 
+### Prepackaged
+A prepackaged distribution file is available with Fiji and macros included.
+
+https://drive.google.com/file/d/1gZplh6--yVFVtfwImEBzn34hL514XvHI/view?usp=sharing
+
 ### Requires: 
 - Fiji in working directory
 - In /Fiji/macros/ place the AutoCalibSlice.ijm and AutoCalibTimed.ijm files
@@ -22,5 +27,3 @@ Reads a timed sequence of photos to plot color concentration over distance to ma
 - [ ] Subtract Noise Floor
 - [ ] Show Photo with OpenCV Line Selection drawn
 
-### Prepackaged
-A prepackaged distribution file is available upon request with Fiji and macros included. 
