@@ -16,6 +16,7 @@ Reads a timed sequence of photos to plot color concentration over distance to ma
 - [x] Commented Code
 - [ ] Distance mapper (Timed Photos)
 - [x] Prepackage executable
+- [x] Moving Average Button
 - [ ] Diffusivity Calculation
 - [ ] Subtract Noise Floor
 - [ ] Show Photo with OpenCV Line Selection drawn
