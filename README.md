@@ -1,5 +1,5 @@
-# DiffusionPlotter v0.8.5
-Latest release: 03/21/22
+# DiffusionPlotter v0.9.0
+Latest release: 04/04/22
 
 Reads a timed sequence of photos to plot color concentration over distance to map diffusion
 
