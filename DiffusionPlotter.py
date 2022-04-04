@@ -1,7 +1,7 @@
 #!/bin/python3
 
-# DiffusionPlotter v0.8.6
-# Last update 03/21/22
+# DiffusionPlotter v0.9.0
+# Last update 04/04/2022
 
 # Import Packages
 import os
@@ -57,7 +57,12 @@ def runTimed():
             if indexnum == 0:
                 minimum = min(img.flatten())
                 i, j = np.where(img == minimum)
-                row = i[0]
+                print(j)
+                row = j[0]
+                # draw a photo in the python directory to confirm line drawing is correct
+            linedphoto = cv2.imread(fullpath)
+            linedphoto = cv2.line(linedphoto, (row, 0), (row, img.shape[1]), (0, 0, 255), 9)
+            cv2.imwrite('DebugPhoto' + str(indexnum + 1) + '.png', linedphoto)
             # flatten the multi-array of pixels into a single array
             # row of interest is rows over where the minimum pixel color is located
             # the line is determined by the most saturated photo and translated to the others
@@ -72,7 +77,7 @@ def runTimed():
             yTimed = img[row][:]
             # Y axis of graph is the line at darkest column (# of rows over), read top to bottom
             if VarMovingAve.get() == 1:
-                yTimed = uniform_filter1d(yTimed, size=50)
+                yTimed = uniform_filter1d(yTimed, size=15)
                 # if moving average is selected, add filter
             if VarNormT.get() == 1:
                 smallest = min(yTimed)
@@ -104,6 +109,83 @@ def runTimed():
     toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)
     # Draw plot toolbar on GUI
 
+def runTimedNoiseless():
+    # create a figure container and add plot
+    fig = plt.figure()
+    a = fig.add_subplot(111)
+    indexnum = 0
+    for name in reversed(os.listdir(VarDir3.get())):
+        # for each item in the selected folder, in reverse alphabetical order
+        filename, extension = os.path.splitext(name)
+        fullpath = VarDir3.get() + "/" + filename + extension
+        if extension in PicExtension:
+            # if the file type is a picture, open the photo
+            img = cv2.imread(fullpath, 1)
+            gray = cv2.imread(fullpath, 0)
+            mask = cv2.inRange(img, (170, 0, 0), (270, 255, 150))
+            img2 = cv2.bitwise_and(img, img, mask=mask)
+            black_pixels = np.where(
+                (img2[:, :, 0] == 0) &
+                (img2[:, :, 1] == 0) &
+                (img2[:, :, 2] == 0)
+            )
+            img2[black_pixels] = [255, 255, 255]
+            h, s, v = cv2.split(img2)
+            if indexnum == 0:
+                minimum = min(gray.flatten())
+                i, j = np.where(gray == minimum)
+                row = i[0]
+                # draw a photo in the python directory to confirm line drawing is correct
+            linedphoto = cv2.line(img, (row, 0), (row, img.shape[1]), (0, 0, 255), 9)
+            linedphoto = cv2.circle(linedphoto, (j[0], i[0]), 40, (0, 0, 255), 9)
+            cv2.imwrite('DebugPhoto' + str(indexnum + 1) + '.png', linedphoto)
+            # flatten the multi-array of pixels into a single array
+            # row of interest is rows over where the minimum pixel color is located
+            # the line is determined by the most saturated photo and translated to the others
+            with open('Fiji.app/pixlenTimed.txt') as f:
+                # using the Time Calibration output; determine pixels/millimeter
+                length = f.readline()
+                length = length.rstrip('\n')
+                length = float(length) / 5
+                # measurement taken over 5mm; therefore divide by 5
+            xTimed = np.arange(img.shape[1]) / length
+            # X axis of graph is mm of distance; pixels divided by pix/mm
+            yTimed = s[row][:]
+            # Y axis of graph is the line at darkest column (# of rows over), read top to bottom
+            if VarMovingAve.get() == 1:
+                yTimed = uniform_filter1d(yTimed, size=15)
+                # if moving average is selected, add filter
+            if VarNormT.get() == 1:
+                smallest = min(yTimed)
+                # If normalizing all to one is selected, each line is normalized
+            elif indexnum == 0:
+                smallest = min(yTimed)
+                # ELSE, only normalize the first line; based on darkest pixel in last photo
+            yTimed = [float(smallest) - float(each) for each in yTimed]
+            yTimed = [(((each + 1e-20) / float(abs(min(yTimed)))) + 1) for each in yTimed]
+            # Inverting values and scaling values from 0-255 (dark to light) to 0-1 (light to dark)
+            if VarConc.get() == 1:
+                yTimed = [each * float(concentration.get()) for each in yTimed]
+                # if user selects concentration values checkbox; scale to 0-[userinput]
+            a.plot(xTimed, yTimed, linewidth=1)
+            indexnum += 1
+            # Plot line, move on to next photo in folder and repeat
+    a.set_xlabel('Distance (mm)')  # X Axis label
+    if VarConc.get() == 1:
+        a.set_ylabel('Concentration (mol/m^3')  # Y Axis Label (if concentration selected)
+    else:
+        a.set_ylabel('Intensity')  # Y Axis Label normally
+    a.legend(['t=360', 't=240', 't=120', 't=0'])  # *FIX ME BASED ON USER EXPERIMENT TIME INPUT*
+    canvas = FigureCanvasTkAgg(fig, master=topRFrame)
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=0)
+    # draw plot on GUI
+    toolbarFrame = Frame(master=botLFrame)
+    toolbarFrame.grid(row=0, column=0)
+    toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)
+    # Draw plot toolbar on GUI
+
+
 def runSlice():
     # *NOT COMPLETED YET*
     #with open('/Fiji.app/pixlenSlice.txt') as f:
@@ -117,7 +199,10 @@ def runfunc():
     if VarTimed.get() == 1:
         if VarFijiT.get() ==1:
             runFijiTimed()
-        runTimed()
+        if VarNoiseless.get() == 1:
+            runTimedNoiseless()
+        else:
+            runTimed()
     if VarSlice.get() == 1:
         if VarFijiS.get() ==1:
             runFijiSlice()
@@ -137,7 +222,7 @@ topFrame.grid(row=0,column=0,padx=5,sticky=W)
 # Required Items
 top1Frame = LabelFrame(topFrame, text="Required",bd=3, font='Helvetica 12 bold')
 top1Frame.grid(row=0,column=0,padx=5,ipady=30,stick=E+W)
-VarTimed = IntVar()
+VarTimed = IntVar(value=1)
 NeedTimed = Checkbutton(top1Frame, text="Plot Timed Photos?",variable=VarTimed).grid(row=0,column=0,stick=W)
 VarSlice = IntVar()
 NeedSlice = Checkbutton(top1Frame, text="Plot Sliced Photos?",variable=VarSlice).grid(row=1,column=0,stick=W)
@@ -165,6 +250,8 @@ VarNormT = IntVar()
 NeedNormT = Checkbutton(top3Frame, text="Normalize All Lines to 1",variable=VarNormT).grid(row=3,column=0,stick=W)
 VarMovingAve = IntVar()
 NeedMovingAve = Checkbutton(top3Frame, text="Take Moving Average",variable=VarMovingAve).grid(row=4,column=0,stick=W)
+VarNoiseless = IntVar()
+NeedNoiseless = Checkbutton(top3Frame, text="Filter Photo Noise",variable=VarNoiseless).grid(row=5,column=0,stick=W)
 
 # Top Frame
 # Slices
@@ -206,10 +293,10 @@ CloseButton = Button(botLFrame, text="Close",command=root.quit).grid(row=4,colum
 # Credits
 botRFrame = LabelFrame(botFrame, text="Credits",bd=3, font='Helvetica 10 bold')
 botRFrame.grid(row=0,column=1,padx=5,ipady=20)
-testLabelbr1 = Label(botRFrame, text="CHE 482 Team Brain  |  Last Updated: 03/08/2022").grid()
+testLabelbr1 = Label(botRFrame, text="CHE 482 Team Brain  |  Last Updated: 04/04/2022").grid()
 testLabelbr2 = Label(botRFrame, text="").grid()
 testLabelbr3 = Label(botRFrame, text="Python 3.10.2 | Java 1.9.0_172 (64-bit) | ImageJ 1.53o").grid()
 testLabelbr4 = Label(botRFrame, text="Python Libraries:").grid()
-testLabelbr5 = Label(botRFrame, text="OpenCV, Matplotlib, Tkinter, Numpy, Pandas").grid()
+testLabelbr5 = Label(botRFrame, text="OpenCV, Matplotlib, Tkinter, Numpy, Scipy, Pandas").grid()
 
 root.mainloop()
