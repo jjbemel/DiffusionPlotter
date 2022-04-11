@@ -1,9 +1,9 @@
 # DiffusionPlotter v0.9.0
-Latest release: 04/04/22
+Latest Updates: 04/04/22
 
 Reads a timed sequence of photos to plot color concentration over distance to map diffusion
 
-### Prepackaged
+### Prepackaged (v0.8.0)
 A prepackaged distribution file is available with Python3, imports, Fiji, and macros all included.
 
 https://drive.google.com/file/d/1gZplh6--yVFVtfwImEBzn34hL514XvHI/view?usp=sharing
